@@ -9,61 +9,40 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import SignIn from './components/signin/signin';
 import Register from './components/register/register';
 import Particles from 'react-particles-js';
+import { connect } from 'react-redux';
+import { loadUser, routeChange, setImageUrl, setSignInStatus, setBox, setCount } from './redux/reducers/user.actions';
 
-
-const particlesOptions={
+const particlesOptions = {
   particles: {
-    number:{
-      value:30,
-      density:{
-        enable:true,
-        value_area:800
+    number: {
+      value: 30,
+      density: {
+        enable: true,
+        value_area: 800
       }
     }
 
   }
 }
-const initialState = {
-  input:'',
-  imageUrl:'',
-  box:{},
-  route: 'signin',
-  isSignedIn: false,
-  user: {
-    id: '',
-    name: "",
-    email: "",
-    entries: 0,
-    joined: ''
-  }
-}
+
 
 class App extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
-    this.state= initialState;
+    this.state = {
+      input: ''
+    }
   }
 
-  loadUser = (data) => {
-    this.setState({
-      user:{
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        entries: data.entries,
-        joined: data.joined
-      }
-
-    })
-  }
-  calculateFaceLocation= (data) =>{
+  calculateFaceLocation = (data) => {
+    console.log(data);
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
     const image = document.getElementById('inputImage');
     const width = Number(image.width);
     const height = Number(image.height);
-    console.log(width , height);
-    return{
+    console.log(width, height);
+    return {
       leftCol: clarifaiFace.left_col * width,
       topRow: clarifaiFace.top_row * height,
       rightCol: width - (clarifaiFace.right_col * width),
@@ -71,99 +50,134 @@ class App extends React.Component {
     }
   }
 
-  displayFaceBox = (box) => {
-    this.setState({box});
-  }
 
-  onInputChange=(event)=>{
+
+  onInputChange = (event) => {
     this.setState({
-      input:event.target.value
+      input: event.target.value
     })
   }
 
   onButtonSubmit = () => {
-    this.setState({
-      imageUrl:this.state.input
-    });
 
+    const { user, entries, imageUrl, setImageUrl, setBox, setCount } = this.props;
+    setImageUrl(this.state.input);
+    console.log("input wehn button is pressed it " + this.state.input);
+
+    console.log("imgUrl is " + this.props.imageUrl)
     fetch('https://hidden-brook-39740.herokuapp.com/imageurl',
-    {
+      {
         method: 'post',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-        input: this.state.input
+          input: this.state.input
+        })
       })
-    })
-    .then(response => response.json())
-    .then(response=> {
-        if(response){
+      .then(response => response.json())
+      .then(response => {
+        console.log("response is " + response);
+        if (response) {
           fetch('https://hidden-brook-39740.herokuapp.com/image',
-          {
+            {
               method: 'put',
-              headers: {'Content-Type': 'application/json'},
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-              id: this.state.user.id
+                id: user.id
+              })
             })
-          })
-          .then(response => response.json())
-          .then(count => {
-            this.setState(Object.assign(this.state.user, {entries: count}))
-          })
-          .catch(err => console.log('Data error'));
+            .then(response => response.json())
+            .then(count => {
+              setCount(count)
+            })
+            .catch(err => console.log('Data error'));
         }
-         this.displayFaceBox(this.calculateFaceLocation(response))
-       })
-       .catch(err=>console.log(err));
+        console.log(response);
+        console.log("inside submit button");
+        let boxLocations = (this.calculateFaceLocation(response));
+        console.log(boxLocations);
+        setBox(boxLocations);
+        console.log(this.calculateFaceLocation(response));
+      })
+      .catch(err => console.log(err));
 
   }
 
   onRouteChange = (route) => {
-    if(route === 'signout'){
-      this.setState(initialState)
-    } else if (route === 'home'){
-      this.setState({
-        isSignedIn: true
-      })
+
+    const { setSignInStatus, routeChange } = this.props;
+    console.log("onroutechange is called and route is " + route)
+    if (route === 'signout') {
+      console.log("signout is called");
+      setSignInStatus(false);
+    } else if (route === 'home') {
+      console.log("setSignInStatus is caled");
+      setSignInStatus(true);
     }
-    this.setState({
-      route: route
-    })
+    routeChange(route);
+    console.log(this.props.route);
   }
 
-  render(){
 
-    const {isSignedIn, box, imageUrl , route, user} = this.state;
+  //return values
+
+
+  render() {
+    console.log('app is rendered');
+    const { route, isSignedIn, imageUrl, box, loadUser, routeChange, user } = this.props;
+
     return (
       <div className="App">
-      <Particles className="particles"
-        params={particlesOptions}
-      />
-      <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn}/>
-      { route === 'home'
-        ? <div>
+        {console.log(this.state.input)}
+        <Particles className="particles"
+          params={particlesOptions}
+        />
+
+        <Navigation onRouteChange={this.onRouteChange} routeChange={routeChange} />
+        {route === 'home'
+          ? <div>
             <Logo />
-            <Rank name={user.name} entries={user.entries} />
+            <Rank name={user.name} />
             <ImageLinkForm
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}
             />
-            <FaceRecognition box={box} imageUrl={imageUrl}/>
+            <FaceRecognition box={box} imageUrl={imageUrl} />
           </div>
-        : (
+          : (
             route === 'signin'
-            ? <SignIn loadUser= {this.loadUser} onRouteChange={this.onRouteChange}/>
-            : (
-              route === 'signout'
-              ? <SignIn loadUser= {this.loadUser} onRouteChange={this.onRouteChange}/>
-              : <Register loadUser= {this.loadUser} onRouteChange={this.onRouteChange}/>
-            )
+              ? <SignIn onRouteChange={this.onRouteChange} />
+              : (
+                route === 'signout'
+                  ? <SignIn onRouteChange={this.onRouteChange} />
+                  : <Register loadUser={loadUser} onRouteChange={this.onRouteChange} />
+              )
           )
-      }
+        }
       </div>
     );
   }
 
-
 }
 
-export default App;
+const mapStateToProps = state => ({
+  isSignedIn: state.user.isSignedIn,
+  box: state.user.box,
+  imageUrl: state.user.imageUrl,
+  route: state.user.route,
+  user: state.user.user,
+  entries: state.user.user.entries
+})
+
+const mapDispatchToProps = dispatch => ({
+  loadUser: user => dispatch(loadUser(user)),
+  routeChange: route => dispatch(routeChange(route)),
+  setImageUrl: image => dispatch(setImageUrl(image)),
+  setSignInStatus: data => dispatch(setSignInStatus(data)),
+  setBox: value => dispatch(setBox(value)),
+  setCount: count => dispatch(setCount(count))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

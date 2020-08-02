@@ -1,0 +1,9 @@
+export const UserActionTypes = {
+  "LOAD_USER": "LOAD_USER",
+  "LOGOUT": "LOGOUT",
+  "ROUTE_CHANGE": "ROUTE_CHANGE",
+  "SET_SIGN_IN_STATUS": "SET_SIGN_IN_STATUS",
+  "SET_BOX": "SET_BOX",
+  "SET_IMAGE_URL": "SET_IMAGE_URL",
+  "SET_COUNT": "SET_COUNT"
+}

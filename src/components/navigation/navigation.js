@@ -1,6 +1,10 @@
 import React from 'react';
+import {routeChange} from '../../redux/reducers/user.actions';
+import {connect} from 'react-redux';
 
-const Navigation = ({onRouteChange,isSignedIn}) => {
+const Navigation = ({onRouteChange,routeChange,isSignedIn}) => {
+
+
 
     if(isSignedIn){
       return(
@@ -19,12 +23,12 @@ const Navigation = ({onRouteChange,isSignedIn}) => {
 
         <nav style={{display:'flex', justifyContent:'flex-end'}}>
           <p
-            onClick={() => onRouteChange('signin')}
+            onClick={() => routeChange('signin')}
             className='f3 link dim black underline pa3 pointer'>
             Sign In
           </p>
           <p
-            onClick={() => onRouteChange('register')}
+            onClick={() => routeChange('register')}
             className='f3 link dim black underline pa3 pointer'>
             Register
           </p>
@@ -32,5 +36,17 @@ const Navigation = ({onRouteChange,isSignedIn}) => {
       );
     }
 }
+const mapStateToProps = state => ({
+  isSignedIn: state.user.isSignedIn,
 
-export default Navigation;
+})
+
+const mapDispatchToProps = dispatch => ({
+  routeChange: route => dispatch(routeChange(route)),
+
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Navigation);

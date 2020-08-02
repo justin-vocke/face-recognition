@@ -1,5 +1,7 @@
 import React from 'react';
 import './signin.css';
+import {connect} from 'react-redux';
+import {loadUser, routeChange} from '../../redux/reducers/user.actions';
 
 class SignIn extends React.Component{
 constructor(props){
@@ -22,6 +24,8 @@ constructor(props){
   }
 
   onSubmitSignIn = () => {
+
+const {loadUser, routeChange, onRouteChange, route} = this.props;
     fetch('https://hidden-brook-39740.herokuapp.com/signin', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
@@ -33,13 +37,19 @@ constructor(props){
     .then(response => response.json())
     .then(user => {
       if(user.id){
-        this.props.loadUser(user);
-        this.props.onRouteChange('home');
+        loadUser(user);
+        routeChange('home');
+
+        onRouteChange('home');
+        let routed = route;
+        console.log(routed);
       }
     })
   }
+
+
   render(){
-    const {onRouteChange} = this.props;
+    const {routeChange} = this.props;
     return (
       <div>
         <article className ="br3 shadow-4 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw5 center">
@@ -66,7 +76,7 @@ constructor(props){
                 />
               </div>
               <div className ="lh-copy mt3">
-                <p onClick={() => onRouteChange('register')} className ="f6 link dim black db">Register</p>
+                <p onClick={() => routeChange('register')} className ="f6 link dim black db">Register</p>
 
               </div>
             </div>
@@ -78,4 +88,16 @@ constructor(props){
 
 }
 
-export default SignIn;
+const mapStateToProps = state => ({
+route: state.user.route
+})
+
+const mapDispatchToProps = dispatch => ({
+  loadUser: user => dispatch(loadUser(user)),
+  routeChange: route => dispatch(routeChange(route))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SignIn);
