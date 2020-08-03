@@ -10,7 +10,7 @@ import SignIn from './components/signin/signin';
 import Register from './components/register/register';
 import Particles from 'react-particles-js';
 import { connect } from 'react-redux';
-import { loadUser, routeChange, setImageUrl, setSignInStatus, setBox, setCount } from './redux/reducers/user.actions';
+import { loadUser, routeChange, setImageUrl, setSignInStatus, setBox, setCount, resetStore } from './redux/reducers/user.actions';
 
 const particlesOptions = {
   particles: {
@@ -91,10 +91,10 @@ class App extends React.Component {
             })
             .catch(err => console.log('Data error'));
         }
-        console.log(response);
-        console.log("inside submit button");
+
         let boxLocations = (this.calculateFaceLocation(response));
         console.log(boxLocations);
+
         setBox(boxLocations);
         console.log(this.calculateFaceLocation(response));
       })
@@ -104,11 +104,12 @@ class App extends React.Component {
 
   onRouteChange = (route) => {
 
-    const { setSignInStatus, routeChange } = this.props;
+    const { setSignInStatus, routeChange, resetStore } = this.props;
     console.log("onroutechange is called and route is " + route)
     if (route === 'signout') {
       console.log("signout is called");
       setSignInStatus(false);
+      resetStore();
     } else if (route === 'home') {
       console.log("setSignInStatus is caled");
       setSignInStatus(true);
@@ -174,7 +175,8 @@ const mapDispatchToProps = dispatch => ({
   setImageUrl: image => dispatch(setImageUrl(image)),
   setSignInStatus: data => dispatch(setSignInStatus(data)),
   setBox: value => dispatch(setBox(value)),
-  setCount: count => dispatch(setCount(count))
+  setCount: count => dispatch(setCount(count)),
+  resetStore: () => dispatch(resetStore())
 });
 
 export default connect(

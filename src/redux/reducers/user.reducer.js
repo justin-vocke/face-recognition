@@ -25,11 +25,7 @@ const userReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         user: {
-          id: action.payload.id,
-          name: action.payload.name,
-          email: action.payload.email,
-          entries: action.payload.entries,
-          joined: action.payload.joined
+          ...action.payload
         }
       }
     case UserActionTypes.LOGOUT:
@@ -51,7 +47,10 @@ const userReducer = (state = INITIAL_STATE, action) => {
     case UserActionTypes.SET_COUNT:
       return {
         ...state,
-        entries: action.payload
+        user: {
+          ...state.user,
+          entries: action.payload
+        }
       }
 
     case UserActionTypes.SET_SIGN_IN_STATUS:
@@ -65,7 +64,26 @@ const userReducer = (state = INITIAL_STATE, action) => {
         ...state,
         imageUrl: action.payload
       }
+    case UserActionTypes.RESET_STORE:
+      return {
+        ...state,
+        user: {
+          id: '',
+          name: "",
+          email: "",
+          entries: 0,
+          joined: ''
+        },
+        input: '',
+        imageUrl: '',
+        box: {
+          leftCol: "",
+          rightCol: "",
+          topRow: "",
+          bottomRow: ""
+        }
 
+      }
     default:
       return state;
   }

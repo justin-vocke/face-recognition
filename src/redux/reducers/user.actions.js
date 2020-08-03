@@ -34,3 +34,7 @@ export const setCount = count => ({
   type: UserActionTypes.SET_COUNT,
   payload: count
 })
+
+export const resetStore = () => ({
+  type: UserActionTypes.RESET_STORE
+})

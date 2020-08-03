@@ -19,7 +19,7 @@ const Rank = ({ entries, name, route }) => {
 const mapStateToProps = state => ({
   name: state.user.user.name,
   route: state.user.route,
-  entries: state.user.entries
+  entries: state.user.user.entries
 })
 export default connect(
   mapStateToProps,

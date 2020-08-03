@@ -5,5 +5,6 @@ export const UserActionTypes = {
   "SET_SIGN_IN_STATUS": "SET_SIGN_IN_STATUS",
   "SET_BOX": "SET_BOX",
   "SET_IMAGE_URL": "SET_IMAGE_URL",
-  "SET_COUNT": "SET_COUNT"
+  "SET_COUNT": "SET_COUNT",
+  "RESET_STORE": "RESET_STORE"
 }
